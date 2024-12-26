@@ -2,31 +2,217 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/style.css">
-    <title>motion-demo-02</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <title>motion-demo-01</title>
 </head>
 <body>
 
 <div class="container">
     <div class="sec sec1">
-        <div class="inner">
-            <div class="swiper">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide"></div>
-                    <div class="swiper-slide"></div>
-                    <div class="swiper-slide"></div>
-                    <div class="swiper-slide"></div>
+        <section class="slogan">
+            <div class="circle">
+                <div class="bg_wrapper">
+                    <div class="bg"></div>
+                </div>
+                <div class="mask"></div>
+                <div class="line_wrapper">
+                    <div class="line"></div>
+                </div>
+                <div class="slogan_zone">
+                    <div class="txt">
+                        <span>INSIDE</span>
+                        <span>OUT</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
+    </div>
+
+    <div class="sec sec2">
+        <section class="product">
+            <div class="inner">
+                <ul class="remote">
+                    <li class="active">
+                        <a href="javascript:void(0);">index 0</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);">index 1</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);">index 2</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);">index 3</a>
+                    </li>
+                </ul>
+                <div class="content_wrapper">
+                    <div class="content">
+                        <div class="bg"></div>
+                        <div class="info">
+                            <h4>product 1</h4>
+                        </div>
+                        <div class="ring"></div>
+                        <div class="object">
+                            <div class="hidden_area">
+                                <img src="images/item1_product.png" alt="">
+                            </div>
+                        </div>
+                        <div class="desc">
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div class="bg"></div>
+                        <div class="info">
+                            <h4>product 2</h4>
+                        </div>
+                        <div class="ring"></div>
+                        <div class="object">
+                            <div class="hidden_area">
+                                <img src="images/item2_product.png" alt="">
+                            </div>
+                        </div>
+                        <div class="desc">
+                            <p>
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab aliquam autem nostrum
+                                reiciendis! In, quaerat, rerum!
+                            </p>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div class="bg"></div>
+                        <div class="info">
+                            <h4>product 3</h4>
+                        </div>
+                        <div class="ring"></div>
+                        <div class="object">
+                            <div class="hidden_area">
+                                <img src="images/item3_product.png" alt="">
+                            </div>
+                        </div>
+                        <div class="desc">
+                            <p>
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi atque dolore, facilis
+                                iusto molestiae nisi porro quam quibusdam quisquam recusandae sint velit veritatis
+                                voluptatibus?
+                            </p>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div class="bg"></div>
+                        <div class="info">
+                            <h4>product 4</h4>
+                        </div>
+                        <div class="ring"></div>
+                        <div class="object">
+                            <div class="hidden_area">
+                                <img src="images/item4_product.png" alt="">
+                            </div>
+                        </div>
+                        <div class="desc">
+                            <p>
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script>
+    /*
+    1. circle 모션 interval 시간은 상관없으나 슬라이드 당 각도는 90도
+    2. pagination 영역 over시 interval일시정지(circle 애니메이션도 그대로 중지) -> 영역에서 벗어나면 다시 진행
+    3. paging click 시 interval 완전 중지, circle위치 90,180,270, 360 위치로 지정
+    * */
+    const sec2 = document.getElementsByClassName("sec2")
+    const remote = document.getElementsByClassName("remote");
+    const remoteBtn = Array.from(document.querySelectorAll(".remote li"));
+    const productContent = document.getElementsByClassName("content");
+    const contentBg = document.querySelectorAll(".product .bg");
+    const contentObject = document.querySelectorAll(".object");
+    const contentObjectImg = document.querySelectorAll(".object img");
+    let currentTimeline;
+    let previousIndex = 0;
+    let activeIndex = 0;
+    let firstClickFlag = false;
 
+    const processRings = document.querySelectorAll(".ring");
+
+    const rotationAmount = 90; // 90도씩 회전
+    let speed = 3; // 각 회전 속도 (3초)
+    let angle = 0; // 현재 각도
+
+    function init() {
+        gsap.set(contentBg, { transform: "translateY(100%)" });
+        gsap.set(contentObjectImg, { transform: "translateY(100%)" });
+        gsap.set(contentBg[0], { transform: "translateY(0)" });
+        gsap.set(contentObjectImg[0], { transform: "translateY(0)" });
+        productContent[0].classList.add("active");
+    }
+
+    init();
+
+    function rotateRing(ring, idx) {
+        gsap.to(ring, {
+            // rotation: angle + rotationAmount,
+            rotation: rotationAmount,
+            duration: speed,
+            ease: "none",
+            onComplete: () => {
+                console.log("onComplete");
+            }
+        });
+    }
+
+    function rotationMotion() {
+        remoteBtn.forEach(function (btn, index) {
+            btn.classList.remove("active"); // 모든 버튼 비활성화
+        });
+
+        remoteBtn[activeIndex].classList.add("active"); // 현재 인덱스의 버튼 활성화
+
+        // 콘텐츠 업데이트
+        Array.from(productContent).forEach(function (content, i) {
+            if (i !== activeIndex) {
+                content.classList.remove("active");
+                gsap.set(contentBg[i], { transform: "translateY(100%)" });
+                gsap.set(contentObjectImg[i], { transform: "translateY(100%)" });
+                gsap.set(processRings[i], { rotation: 0 });
+            } else {
+                productContent[i].style.backgroundImage = "url(images/item" + previousIndex + "_bg.jpg)";
+                content.classList.add("active");
+                rotateRing(processRings[i], i);
+            }
+        });
+
+        if (currentTimeline) {
+            currentTimeline.kill();
+        }
+
+        currentTimeline = gsap.timeline();
+        currentTimeline
+            .to(contentBg[activeIndex], {
+                transform: "translateY(0)",
+                duration: 0.75,
+                ease: "power2.out"
+            })
+            .to(contentObjectImg[activeIndex], {
+                delay: 0.3,
+                transform: "translateY(0)",
+                duration: 0.75,
+                ease: "power2.out"
+            }, "<");
+
+        // 다음 인덱스로 이동
+        previousIndex = activeIndex + 1;
+        activeIndex = (activeIndex + 1) % remoteBtn.length; // 인덱스 루프
+    }
+
+    setInterval(rotationMotion, 3000);
 </script>
 </body>
 </html>
