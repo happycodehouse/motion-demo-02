@@ -236,8 +236,8 @@
         }
     }
 
-    function stopInterval() {
-        console.log("stopInterval");
+    function pauseInterval() {
+        console.log("pauseInterval");
         clearInterval(intervalId);
         isRunningInterval = false;
 
@@ -258,11 +258,21 @@
         }
     });
 
-    remote.addEventListener("mouseenter", stopInterval);
+    remote.addEventListener("mouseenter", pauseInterval);
     remote.addEventListener("mouseleave", function () {
         if (ringTimeline) {
             ringTimeline.play();
         }
+    });
+
+    remoteBtn.forEach(function (btn, index) {
+        btn.addEventListener("click", function () {
+            activeIndex = index;
+            sec2Motion(index);
+            if (ringTimeline) {
+                ringTimeline.kill();
+            }
+        });
     });
 </script>
 </body>
