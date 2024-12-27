@@ -144,6 +144,8 @@
     let ringTimeline = null;
     const rotationAmount = 90;
     let speed = 3;
+    let intervalId;
+    let isRunningInterval = false;
     let isSec2Motion = false;
 
     function init() {
@@ -169,7 +171,8 @@
             ease: "none",
             onComplete: () => {
                 console.log("onComplete");
-                sec2Motion();
+                sec2Motion()
+                startInterval();
             }
         });
     }
@@ -226,6 +229,23 @@
         console.log("activeIndex", activeIndex);
     }
 
+    function startInterval() {
+        if (!isRunningInterval) {
+            intervalId = setInterval(sec2Motion, 3000);
+            isRunningInterval = true;
+        }
+    }
+
+    function pauseInterval() {
+        console.log("pauseInterval");
+        clearInterval(intervalId);
+        isRunningInterval = false;
+
+        if (ringTimeline) {
+            ringTimeline.pause();
+        }
+    }
+
     const secTl = gsap.timeline({
         scrollTrigger: {
             trigger: sec2,
@@ -238,13 +258,8 @@
         }
     });
 
-    remote.addEventListener("mouseenter", () => {
-        if (ringTimeline) {
-            ringTimeline.pause();
-        }
-    });
-
-    remote.addEventListener("mouseleave", () => {
+    remote.addEventListener("mouseenter", pauseInterval);
+    remote.addEventListener("mouseleave", function () {
         if (ringTimeline) {
             ringTimeline.play();
         }
