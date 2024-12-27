@@ -33,16 +33,16 @@
             <div class="inner">
                 <ul class="remote">
                     <li class="active">
-                        <a href="javascript:void(0);">index 0</a>
+                        <a href="javascript:void(0);">product 1</a>
                     </li>
                     <li>
-                        <a href="javascript:void(0);">index 1</a>
+                        <a href="javascript:void(0);">product 2</a>
                     </li>
                     <li>
-                        <a href="javascript:void(0);">index 2</a>
+                        <a href="javascript:void(0);">product 3</a>
                     </li>
                     <li>
-                        <a href="javascript:void(0);">index 3</a>
+                        <a href="javascript:void(0);">product 4</a>
                     </li>
                 </ul>
                 <div class="content_wrapper">
@@ -127,74 +127,86 @@
     1. circle 모션 interval 시간은 상관없으나 슬라이드 당 각도는 90도
     2. pagination 영역 over시 interval일시정지(circle 애니메이션도 그대로 중지) -> 영역에서 벗어나면 다시 진행
     3. paging click 시 interval 완전 중지, circle위치 90,180,270, 360 위치로 지정
-    * */
-    const sec2 = document.getElementsByClassName("sec2")
-    const remote = document.getElementsByClassName("remote");
-    const remoteBtn = Array.from(document.querySelectorAll(".remote li"));
-    const productContent = document.getElementsByClassName("content");
-    const contentBg = document.querySelectorAll(".product .bg");
-    const contentObject = document.querySelectorAll(".object");
-    const contentObjectImg = document.querySelectorAll(".object img");
-    let currentTimeline;
+    */
+
+    const sec2 = document.getElementsByClassName("sec2")[0]; // sec2 요소
+    const remote = document.getElementsByClassName("remote")[0]; // remote 요소
+    const remoteBtn = Array.from(document.querySelectorAll(".remote li")); // pagination 버튼
+    const productContent = document.getElementsByClassName("content"); // 콘텐츠
+    const contentBg = document.querySelectorAll(".product .bg"); // 배경
+    const contentObjectImg = document.querySelectorAll(".object img"); // 오브젝트 이미지
+    const processRings = document.querySelectorAll(".ring"); // 원
+
+    let contentTimeline;
     let previousIndex = 0;
     let activeIndex = 0;
-    let firstClickFlag = false;
 
-    const processRings = document.querySelectorAll(".ring");
-
+    let ringTimeline = null;
     const rotationAmount = 90; // 90도씩 회전
     let speed = 3; // 각 회전 속도 (3초)
-    let angle = 0; // 현재 각도
+    let intervalId;
+    let isRunningInterval = false; // 인터벌 플래그
+    let isSec2Motion = false; // 모션 플래그
 
     function init() {
-        gsap.set(contentBg, { transform: "translateY(100%)" });
-        gsap.set(contentObjectImg, { transform: "translateY(100%)" });
-        gsap.set(contentBg[0], { transform: "translateY(0)" });
-        gsap.set(contentObjectImg[0], { transform: "translateY(0)" });
+        gsap.set(processRings, {rotation: 0});
+        gsap.set(contentBg, {transform: "translateY(100%)"});
+        gsap.set(contentObjectImg, {transform: "translateY(100%)"});
+        gsap.set(contentBg[0], {transform: "translateY(0)"});
+        gsap.set(contentObjectImg[0], {transform: "translateY(0)"});
         productContent[0].classList.add("active");
     }
 
     init();
 
-    function rotateRing(ring, idx) {
-        gsap.to(ring, {
-            // rotation: angle + rotationAmount,
-            rotation: rotationAmount,
+    function rotateRing(ring) {
+        if (ringTimeline) {
+            ringTimeline.kill();
+        }
+
+        ringTimeline = gsap.timeline();
+        ringTimeline.to(ring, {
+            rotation: rotationAmount, // 현재 각도에서 회전
             duration: speed,
             ease: "none",
             onComplete: () => {
                 console.log("onComplete");
+                sec2Motion()
+                startInterval(); // 인터벌 시작
             }
         });
     }
 
-    function rotationMotion() {
-        remoteBtn.forEach(function (btn, index) {
-            btn.classList.remove("active"); // 모든 버튼 비활성화
+    function sec2Motion() {
+        if (isSec2Motion) return;
+
+        isSec2Motion = true;
+
+        remoteBtn.forEach(function (btn) {
+            btn.classList.remove("active");
         });
 
-        remoteBtn[activeIndex].classList.add("active"); // 현재 인덱스의 버튼 활성화
+        remoteBtn[activeIndex].classList.add("active");
 
-        // 콘텐츠 업데이트
         Array.from(productContent).forEach(function (content, i) {
             if (i !== activeIndex) {
                 content.classList.remove("active");
-                gsap.set(contentBg[i], { transform: "translateY(100%)" });
-                gsap.set(contentObjectImg[i], { transform: "translateY(100%)" });
-                gsap.set(processRings[i], { rotation: 0 });
+                gsap.set(processRings[i], {rotation: 0});
+                gsap.set(contentBg[i], {transform: "translateY(100%)"});
+                gsap.set(contentObjectImg[i], {transform: "translateY(100%)"});
             } else {
-                productContent[i].style.backgroundImage = "url(images/item" + previousIndex + "_bg.jpg)";
+                productContent[i].style.backgroundImage = "url(images/item" + (previousIndex + 1) + "_bg.jpg)";
                 content.classList.add("active");
-                rotateRing(processRings[i], i);
+                rotateRing(processRings[i]);
             }
         });
 
-        if (currentTimeline) {
-            currentTimeline.kill();
+        if (contentTimeline) {
+            contentTimeline.kill();
         }
 
-        currentTimeline = gsap.timeline();
-        currentTimeline
+        contentTimeline = gsap.timeline();
+        contentTimeline
             .to(contentBg[activeIndex], {
                 transform: "translateY(0)",
                 duration: 0.75,
@@ -205,14 +217,53 @@
                 transform: "translateY(0)",
                 duration: 0.75,
                 ease: "power2.out"
-            }, "<");
+            }, "<")
+            .eventCallback("onComplete", () => {
+                isSec2Motion = false;
+            });
 
         // 다음 인덱스로 이동
-        previousIndex = activeIndex + 1;
+        previousIndex = activeIndex;
         activeIndex = (activeIndex + 1) % remoteBtn.length; // 인덱스 루프
+        console.log("previousIndex", previousIndex);
+        console.log("activeIndex", activeIndex);
     }
 
-    setInterval(rotationMotion, 3000);
+    function startInterval() {
+        if (!isRunningInterval) {
+            intervalId = setInterval(sec2Motion, 3000);
+            isRunningInterval = true;
+        }
+    }
+
+    function stopInterval() {
+        console.log("stopInterval");
+        clearInterval(intervalId);
+        isRunningInterval = false;
+
+        if (ringTimeline) {
+            ringTimeline.pause();
+        }
+    }
+
+    const secTl = gsap.timeline({
+        scrollTrigger: {
+            trigger: sec2,
+            start: "top top",
+            end: "bottom bottom",
+            markers: true,
+            onEnter: () => {
+                sec2Motion();
+            }
+        }
+    });
+
+    remote.addEventListener("mouseenter", stopInterval);
+    remote.addEventListener("mouseleave", function () {
+        if (ringTimeline) {
+            ringTimeline.play();
+        }
+    });
 </script>
 </body>
 </html>

@@ -99,11 +99,19 @@ ul {
   padding: 24px 48px;
   background-color: #fff;
 }
+.sec2 .remote:hover {
+  background-color: #000;
+}
+.sec2 .remote:hover li a {
+  color: #fff;
+}
 .sec2 .remote li.active a {
-  color: red;
+  opacity: 1;
 }
 .sec2 .remote a {
+  color: #000;
   font-weight: 700;
+  opacity: 0.5;
 }
 .sec2 .content_wrapper {
   position: relative;

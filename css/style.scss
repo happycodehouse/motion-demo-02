@@ -111,16 +111,28 @@ ul {
             padding: 24px 48px;
             background-color: #fff;
 
+            &:hover {
+                background-color: #000;
+
+                li {
+                    a {
+                        color: #fff;
+                    }
+                }
+            }
+
             li {
                 &.active {
                     a {
-                        color: red;
+                        opacity: 1;
                     }
                 }
             }
 
             a {
+                color: #000;
                 font-weight: 700;
+                opacity: 0.5;
             }
         }
 
