@@ -129,24 +129,24 @@
     3. paging click 시 interval 완전 중지, circle위치 90,180,270, 360 위치로 지정
     */
 
-    const sec2 = document.getElementsByClassName("sec2")[0]; // sec2 요소
-    const remote = document.getElementsByClassName("remote")[0]; // remote 요소
-    const remoteBtn = Array.from(document.querySelectorAll(".remote li")); // pagination 버튼
-    const productContent = document.getElementsByClassName("content"); // 콘텐츠
-    const contentBg = document.querySelectorAll(".product .bg"); // 배경
-    const contentObjectImg = document.querySelectorAll(".object img"); // 오브젝트 이미지
-    const processRings = document.querySelectorAll(".ring"); // 원
+    const sec2 = document.getElementsByClassName("sec2")[0];
+    const remote = document.getElementsByClassName("remote")[0];
+    const remoteBtn = Array.from(document.querySelectorAll(".remote li"));
+    const productContent = document.getElementsByClassName("content");
+    const contentBg = document.querySelectorAll(".product .bg");
+    const contentObjectImg = document.querySelectorAll(".object img");
+    const processRings = document.querySelectorAll(".ring");
 
     let contentTimeline;
     let previousIndex = 0;
     let activeIndex = 0;
 
     let ringTimeline = null;
-    const rotationAmount = 90; // 90도씩 회전
-    let speed = 3; // 각 회전 속도 (3초)
+    const rotationAmount = 90;
+    let speed = 3;
     let intervalId;
-    let isRunningInterval = false; // 인터벌 플래그
-    let isSec2Motion = false; // 모션 플래그
+    let isRunningInterval = false;
+    let isSec2Motion = false;
 
     function init() {
         gsap.set(processRings, {rotation: 0});
@@ -166,13 +166,13 @@
 
         ringTimeline = gsap.timeline();
         ringTimeline.to(ring, {
-            rotation: rotationAmount, // 현재 각도에서 회전
+            rotation: rotationAmount,
             duration: speed,
             ease: "none",
             onComplete: () => {
                 console.log("onComplete");
                 sec2Motion()
-                startInterval(); // 인터벌 시작
+                startInterval();
             }
         });
     }
@@ -251,7 +251,7 @@
             trigger: sec2,
             start: "top top",
             end: "bottom bottom",
-            markers: true,
+            markers: false,
             onEnter: () => {
                 sec2Motion();
             }
